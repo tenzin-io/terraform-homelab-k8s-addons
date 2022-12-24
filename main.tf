@@ -1,13 +1,12 @@
-provider "helm" {
-  kubernetes {
-    config_path    = var.kubernetes.config_path
-    config_context = var.kubernetes.context
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
   }
-}
-
-provider "kubernetes" {
-  config_path    = var.kubernetes.config_path
-  config_context = var.kubernetes.context
 }
 
 #
