@@ -114,6 +114,7 @@ resource "helm_release" "splunk_enterprise" {
 }
 
 data "kubernetes_secret" "splunk_secrets" {
+  depends_on = [helm_release.splunk_enterprise]
   metadata {
     name = "splunk-stdln-standalone-secret-v1"
     namespace = "monitoring"
