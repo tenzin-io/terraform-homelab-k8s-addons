@@ -23,7 +23,6 @@ resource "helm_release" "splunk_enterprise" {
   version    = "1.0.0"
   namespace  = local.namespace
   skip_crds  = true
-  wait_for_jobs = true
   values = [
     file("${path.module}/splunk-enterprise/values.yaml")
   ]
