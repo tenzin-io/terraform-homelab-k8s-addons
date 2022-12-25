@@ -12,7 +12,7 @@ resource "helm_release" "splunk_operator" {
   version          = "1.0.0"
   namespace        = local.namespace
   create_namespace = true
-  wait_for_jobs = true
+  wait_for_jobs    = true
 }
 
 resource "helm_release" "splunk_enterprise" {
@@ -31,7 +31,7 @@ resource "helm_release" "splunk_enterprise" {
 # Wait 10 seconds after Helm installation of Splunk Enterprise chart.
 # Terraform tries to read the splunk_secrets immediately and Splunk has yet to create them, which results in an error.
 resource "time_sleep" "wait_10_seconds" {
-  depends_on = [helm_release.splunk_enterprise]
+  depends_on      = [helm_release.splunk_enterprise]
   create_duration = "10s"
 }
 
