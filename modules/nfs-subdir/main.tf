@@ -21,6 +21,7 @@ variable "path" {
 variable "defaultStorageClass" {
   type        = bool
   description = "Configure this volume provisioner to be the default storage class"
+  default     = true
 }
 
 locals {
