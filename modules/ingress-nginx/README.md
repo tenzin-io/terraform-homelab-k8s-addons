@@ -4,4 +4,4 @@ The `ingress-nginx` Helm repo chart can be found here:
 
 Useful Nginx ingress tuning and setup:
 - <https://kubernetes.github.io/ingress-nginx/user-guide/tls/>
-- <https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#x-forwarded-prefix-header>
+- <https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md>
