@@ -2,7 +2,7 @@ grafana:
   enabled: false
 
 kubelet:
-  enabled: false
+  enabled: true
 
 kubeControllerManager:
   enabled: false
@@ -23,7 +23,7 @@ kubeStateMetrics:
   enabled: false
 
 nodeExporter:
-  enabled: false
+  enabled: true
 
 prometheusOperator:
   admissionWebhooks:
