@@ -77,10 +77,16 @@ variable "enable_monitoring" {
   default     = false
 }
 
+variable "domain_name" {
+  type = string
+  description = "The domain name to place hosts when building Ingress manifests"
+}
+
 module "monitoring" {
   depends_on = [ module.nfs_subdir ]
   count  = var.enable_monitoring ? 1 : 0
   source = "./modules/monitoring"
+  domain_name = var.domain_name
 }
 
 #
@@ -92,9 +98,23 @@ variable "enable_ingress_nginx" {
   default = false
 }
 
+variable "cloudflare_token" {
+  type = string
+  description = "CloudFlare API token"
+  sensitive = true
+}
+
+variable "certificate_email" {
+  type = string
+  description = "Certificate expiry contact email."
+}
+
 module "ingress_nginx" {
   depends_on = [module.monitoring]
   count = var.enable_ingress_nginx ? 1 : 0
   source = "./modules/ingress-nginx"
   monitoring_enabled = var.enable_monitoring
+  cloudflare_token = var.cloudflare_token
+  certificate_email = var.certificate_email
+  domain_name = var.domain_name
 }
