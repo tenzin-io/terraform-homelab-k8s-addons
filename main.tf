@@ -78,6 +78,23 @@ variable "enable_monitoring" {
 }
 
 module "monitoring" {
+  depends_on = [ module.nfs_subdir ]
   count  = var.enable_monitoring ? 1 : 0
   source = "./modules/monitoring"
+}
+
+#
+# Nginx ingress add-on
+#
+variable "enable_nginx_ingress" {
+  type = bool
+  description = "Enable the Nginx ingress add-on"
+  default = false
+}
+
+module "nginx_ingress" {
+  depends_on = [module.monitoring]
+  count = var.enable_nginx_ingress ? 1 : 0
+  source = "./modules/nginx-ingress"
+  monitoring_enabled = var.enable_monitoring
 }
