@@ -86,15 +86,15 @@ module "monitoring" {
 #
 # Nginx ingress add-on
 #
-variable "enable_nginx_ingress" {
+variable "enable_ingress_nginx" {
   type = bool
   description = "Enable the Nginx ingress add-on"
   default = false
 }
 
-module "nginx_ingress" {
+module "ingress_nginx" {
   depends_on = [module.monitoring]
-  count = var.enable_nginx_ingress ? 1 : 0
-  source = "./modules/nginx-ingress"
+  count = var.enable_ingress_nginx ? 1 : 0
+  source = "./modules/ingress-nginx"
   monitoring_enabled = var.enable_monitoring
 }

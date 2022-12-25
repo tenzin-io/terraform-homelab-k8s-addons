@@ -8,7 +8,7 @@ variable "monitoring_enabled" {
   default = false
 }
 
-resource "helm_release" "nginx_ingress" {
+resource "helm_release" "ingress_nginx" {
   name = "ingress-nginx"
   chart = "ingress-nginx"
   namespace = "nginx-system"
