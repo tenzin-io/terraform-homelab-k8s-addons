@@ -2,6 +2,10 @@
 # Nginx Ingress
 #
 
+locals {
+  namespace = "nginx-system"
+}
+
 variable "monitoring_enabled" {
   type = bool
   description = "Is the Monitoring add-on enabled"
@@ -11,7 +15,7 @@ variable "monitoring_enabled" {
 resource "helm_release" "ingress_nginx" {
   name = "ingress-nginx"
   chart = "ingress-nginx"
-  namespace = "nginx-system"
+  namespace = local.namespace
   create_namespace = true
   repository = "https://kubernetes.github.io/ingress-nginx"
   version = "4.4.0"
