@@ -7,6 +7,3 @@ A Terraform module repository to manage my Kubernetes cluster add-ons.
 | `enable_nfs_subdir` | Turns on the NFS subdir provisioner as the default storage class. |
 | `enable_monitoring` | Turns on Splunk with Fluent-bit for logging and Prometheus with Grafana for metrics. The `enable_nfs_subdir` must be set to `true`, because this feature needs to create persistent volumes. |
 | `enable_ingress_nginx` | Turns on the Nginx ingress controller. Integrated with cert-manager, using Lets Encrypt + CloudFlare as the solver method. |
-
-## TODOs:
-- Add Grafana support
