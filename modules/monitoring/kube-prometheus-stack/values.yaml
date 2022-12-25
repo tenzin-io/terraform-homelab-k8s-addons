@@ -1,4 +1,8 @@
 grafana:
+  enabled: true
+  adminPassword: "${grafana_admin_password}"
+
+alertmanager:
   enabled: false
 
 kubelet:
