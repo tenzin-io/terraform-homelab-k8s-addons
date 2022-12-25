@@ -56,12 +56,12 @@ resource "helm_release" "ingress_nginx" {
 # Cert-manager setup
 #
 resource "helm_release" "cert_manager" {
-  depends_on = [helm_release.ingress_nginx]
-  name       = "cert-manager"
-  namespace  = local.namespace
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  version    = "1.10.1"
+  depends_on    = [helm_release.ingress_nginx]
+  name          = "cert-manager"
+  namespace     = local.namespace
+  repository    = "https://charts.jetstack.io"
+  chart         = "cert-manager"
+  version       = "1.10.1"
   wait_for_jobs = true
 
   set {
@@ -102,7 +102,7 @@ resource "kubernetes_manifest" "lets_encrypt_certificate_issuer" {
   depends_on = [helm_release.cert_manager, kubernetes_secret.cloudflare_api_secret]
   manifest = {
     "apiVersion" = "cert-manager.io/v1"
-    "kind" = "ClusterIssuer"
+    "kind"       = "ClusterIssuer"
     "metadata" = {
       "name" = "lets-encrypt"
     }
@@ -116,7 +116,7 @@ resource "kubernetes_manifest" "lets_encrypt_certificate_issuer" {
           "dns01" = {
             "cloudflare" = {
               "apiTokenSecretRef" = {
-                "key" = "token"
+                "key"  = "token"
                 "name" = "cloudflare-api-secret"
               }
               "email" = "${var.certificate_email}"
@@ -129,23 +129,23 @@ resource "kubernetes_manifest" "lets_encrypt_certificate_issuer" {
 }
 
 variable "domain_name" {
-  type = string
+  type        = string
   description = "The domain name to place hosts when building Ingress manifests"
 }
 
 # Setup Kubernetes API server ingress
 resource "kubernetes_ingress_v1" "kubernete_api_ingress" {
   metadata {
-    name = "kubernetes-apiserver-ingress"
+    name      = "kubernetes-apiserver-ingress"
     namespace = "default"
-     annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "cert-manager.io/cluster-issuer" = "lets-encrypt"
-      "nginx.ingress.kubernetes.io/backend-protocol" = "HTTPS"
+    annotations = {
+      "kubernetes.io/ingress.class"                       = "nginx"
+      "cert-manager.io/cluster-issuer"                    = "lets-encrypt"
+      "nginx.ingress.kubernetes.io/backend-protocol"      = "HTTPS"
       "nginx.ingress.kubernetes.io/proxy-connect-timeout" = "120"
-      "nginx.ingress.kubernetes.io/proxy-read-timeout" = "180"
-      "nginx.ingress.kubernetes.io/proxy-send-timeout" = "180"
-      "nginx.ingress.kubernetes.io/proxy-body-size" = "10m"
+      "nginx.ingress.kubernetes.io/proxy-read-timeout"    = "180"
+      "nginx.ingress.kubernetes.io/proxy-send-timeout"    = "180"
+      "nginx.ingress.kubernetes.io/proxy-body-size"       = "10m"
     }
   }
 
@@ -155,21 +155,21 @@ resource "kubernetes_ingress_v1" "kubernete_api_ingress" {
       http {
         path {
           backend {
-            service{
-              name  = "kubernetes"
+            service {
+              name = "kubernetes"
               port {
                 number = 443
               }
             }
           }
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
         }
       }
     }
 
     tls {
-      hosts = ["k8s.${var.domain_name}"]
+      hosts       = ["k8s.${var.domain_name}"]
       secret_name = "kubernetes-apiserver-tls-secret"
     }
   }

@@ -44,7 +44,7 @@ data "kubernetes_secret" "splunk_secrets" {
 }
 
 variable "domain_name" {
-  type = string
+  type        = string
   description = "The domain name to place hosts when building Ingress manifests"
 }
 
@@ -52,10 +52,10 @@ variable "domain_name" {
 resource "kubernetes_ingress_v1" "splunk_ingress" {
   depends_on = [helm_release.splunk_enterprise]
   metadata {
-    name = "splunk-ingress"
+    name      = "splunk-ingress"
     namespace = local.namespace
-     annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
+    annotations = {
+      "kubernetes.io/ingress.class"    = "nginx"
       "cert-manager.io/cluster-issuer" = "lets-encrypt"
     }
   }
@@ -66,21 +66,21 @@ resource "kubernetes_ingress_v1" "splunk_ingress" {
       http {
         path {
           backend {
-            service{
-              name  = "splunk-stdln-standalone-service"
+            service {
+              name = "splunk-stdln-standalone-service"
               port {
                 name = "http-splunkweb"
               }
             }
           }
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
         }
       }
     }
 
     tls {
-      hosts = ["splunk.${var.domain_name}"]
+      hosts       = ["splunk.${var.domain_name}"]
       secret_name = "splunk-tls-secret"
     }
   }
