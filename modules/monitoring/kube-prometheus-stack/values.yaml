@@ -1,0 +1,32 @@
+grafana:
+  enabled: false
+
+kubelet:
+  enabled: false
+
+kubeControllerManager:
+  enabled: false
+
+coreDns:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeProxy:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+prometheusOperator:
+  admissionWebhooks:
+    enabled: false
+  tls:
+    enabled: false
