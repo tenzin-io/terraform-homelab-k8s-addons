@@ -77,16 +77,16 @@ variable "enable_monitoring" {
   default     = false
 }
 
-variable "domain_name" {
+variable "external_domain_name" {
   type        = string
-  description = "The domain name to place hosts when building Ingress manifests"
+  description = "The external domain name to place hosts when building Ingress manifests"
 }
 
 module "monitoring" {
   depends_on  = [module.nfs_subdir]
-  count       = var.enable_monitoring ? 1 : 0
+  count       = var.enable_monitoring && var.enable_nfs_subdir ? 1 : 0
   source      = "./modules/monitoring"
-  domain_name = var.domain_name
+  external_domain_name = var.external_domain_name
 }
 
 #
@@ -116,5 +116,28 @@ module "ingress_nginx" {
   monitoring_enabled = var.enable_monitoring
   cloudflare_token   = var.cloudflare_token
   certificate_email  = var.certificate_email
-  domain_name        = var.domain_name
+  external_domain_name        = var.external_domain_name
+}
+
+#
+# Vault add-on
+#
+variable "enable_vault" {
+  type        = bool
+  description = "Enable the Vault add-on"
+  default     = false
+}
+
+variable "vault_backup_git_url" {
+  type = string
+  description = "A URL to a Git repo containing the Vault data backup."
+}
+
+module "vault" {
+  depends_on         = [module.monitoring]
+  count = var.enable_vault ? 1 : 0
+  source = "./modules/vault"
+  monitoring_enabled = var.enable_monitoring
+  vault_backup_git_url = var.vault_backup_git_url
+  external_domain_name = var.external_domain_name
 }

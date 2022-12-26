@@ -1,0 +1,92 @@
+server:
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: lets-encrypt
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/backend-protocol: HTTP
+      nginx.ingress.kubernetes.io/proxy-body-size: 10m
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "120"
+      nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+
+    hosts:
+      - host: vault.${external_domain_name}
+
+    tls:
+    - hosts:
+      - vault.${external_domain_name}
+      secretName: vault-tls-secret
+
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "[::]:8200"
+        cluster_address = "[::]:8201"
+
+        # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+        telemetry {
+          unauthenticated_metrics_access = true
+        }
+      }
+
+      storage "file" {
+        path = "/vault/data"
+      }
+
+      plugin_directory = "/usr/local/libexec/vault"
+      disable_mlock = true
+
+      # Configuration for enabling Prometheus metrics
+      telemetry {
+        prometheus_retention_time = "30s"
+        disable_hostname = true
+      }
+
+  logFormat: json
+  logLevel: trace
+
+  extraInitContainers:
+    # Install the Artifactory secrets Vault plugin
+    - name: artifactory
+      image: "alpine"
+      command: [sh,-x, -c]
+      args:
+        - cd /tmp &&
+          wget -O artifactory-plugin.zip https://github.com/jfrog/artifactory-secrets-plugin/releases/download/v0.2.0/artifactory-secrets-plugin_0.2.0_linux_amd64.zip &&
+          unzip  artifactory-plugin.zip artifactory-secrets-plugin_v0.2.0 &&
+          mv artifactory-secrets-plugin_v0.2.0 /usr/local/libexec/vault/artifactory &&
+          chmod +x /usr/local/libexec/vault/artifactory
+      volumeMounts:
+        - name: plugins
+          mountPath: /usr/local/libexec/vault
+
+    - name: vault-restore
+      image: "bitnami/git"
+      command: [bash, -x, -c]
+      args:
+        - if [[ ! -z "${vault_backup_git_url}" && ! -d /vault/data/.git ]]; then rm -rf /vault/data/*; git clone ${vault_backup_git_url} /vault/data; else exit 0; fi
+      volumeMounts:
+        - name: data
+          mountPath: /vault/data
+
+  volumes:
+    - name: plugins
+      emptyDir: {}
+
+  volumeMounts:
+    - mountPath: /usr/local/libexec/vault
+      name: plugins
+      readOnly: true
+
+ui:
+  enabled: true
+
+serverTelemetry:
+  serviceMonitor:
+    enabled: "${monitoring_enabled}"
+
