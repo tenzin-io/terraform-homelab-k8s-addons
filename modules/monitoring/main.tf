@@ -172,3 +172,30 @@ resource "kubernetes_ingress_v1" "grafana_ingress" {
 }
 
 
+#
+# Metrics server
+#
+
+resource "helm_release" "metrics_server" {
+  depends_on = [helm_release.prometheus]
+  name       = "metrics-server"
+  chart      = "metrics-server"
+  version    = "3.8.3"
+  repository = "https://kubernetes-sigs.github.io/metrics-server/"
+  namespace  = local.namespace
+
+  set {
+    name  = "metrics.enabled"
+    value = true
+  }
+  set {
+    name = "args"
+    value = "{--kubelet-insecure-tls}"
+  }
+
+  set {
+    name  = "serviceMonitor.enabled"
+    value = true
+  }
+
+}
