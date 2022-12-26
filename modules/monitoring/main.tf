@@ -130,7 +130,7 @@ data "template_file" "prometheus_values" {
   template = file("${path.module}/kube-prometheus-stack/values.yaml")
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
-    domain_name = var.domain_name
+    domain_name            = var.domain_name
   }
 }
 
@@ -151,7 +151,7 @@ resource "helm_release" "metrics_server" {
     value = true
   }
   set {
-    name = "args"
+    name  = "args"
     value = "{--kubelet-insecure-tls}"
   }
 
@@ -161,12 +161,12 @@ resource "helm_release" "metrics_server" {
   }
 
   set {
-    name = "serviceMonitor.interval"
+    name  = "serviceMonitor.interval"
     value = "15s"
   }
 
   set {
-    name = "serviceMonitor.additionalLabels.release"
+    name  = "serviceMonitor.additionalLabels.release"
     value = "prometheus"
   }
 
