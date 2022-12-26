@@ -130,47 +130,9 @@ data "template_file" "prometheus_values" {
   template = file("${path.module}/kube-prometheus-stack/values.yaml")
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
+    domain_name = var.domain_name
   }
 }
-
-# Setup Grafana Ingress
-resource "kubernetes_ingress_v1" "grafana_ingress" {
-  depends_on = [helm_release.prometheus]
-  metadata {
-    name      = "grafana-ingress"
-    namespace = local.namespace
-    annotations = {
-      "kubernetes.io/ingress.class"    = "nginx"
-      "cert-manager.io/cluster-issuer" = "lets-encrypt"
-    }
-  }
-
-  spec {
-    rule {
-      host = "grafana.${var.domain_name}"
-      http {
-        path {
-          backend {
-            service {
-              name = "prometheus-grafana"
-              port {
-                name = "http-web"
-              }
-            }
-          }
-          path      = "/"
-          path_type = "Prefix"
-        }
-      }
-    }
-
-    tls {
-      hosts       = ["grafana.${var.domain_name}"]
-      secret_name = "grafana-tls-secret"
-    }
-  }
-}
-
 
 #
 # Metrics server

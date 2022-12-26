@@ -1,6 +1,19 @@
 grafana:
   enabled: true
   adminPassword: "${grafana_admin_password}"
+  defaultDashboardsTimezone: US/Eastern
+  ingress:
+    enabled: true
+    annotations:
+      "kubernetes.io/ingress.class": "nginx"
+      "cert-manager.io/cluster-issuer": "lets-encrypt"
+    hosts:
+      - "grafana.${domain_name}"
+    path: "/"
+    tls:
+      - secretName: grafana-tls-secret
+        hosts:
+          - "grafana.${domain_name}"
 
 alertmanager:
   enabled: false
@@ -24,7 +37,7 @@ kubeProxy:
   enabled: false
 
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 
 nodeExporter:
   enabled: true
