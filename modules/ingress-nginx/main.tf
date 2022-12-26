@@ -32,10 +32,10 @@ resource "helm_release" "ingress_nginx" {
     value = var.monitoring_enabled
   }
 
-  # the prometheus operator monitors for the release=kube-prometheus label
+  # the prometheus operator monitors for the release=prometheus label
   set {
     name  = "controller.metrics.serviceMonitor.additionalLabels.release"
-    value = "kube-prometheus"
+    value = "prometheus"
   }
 
   # helm install very slow if set to true
@@ -72,6 +72,11 @@ resource "helm_release" "cert_manager" {
   set {
     name  = "prometheus.servicemonitor.enabled"
     value = var.monitoring_enabled
+  }
+
+  set {
+    name  = "prometheus.servicemonitor.labels.release"
+    value = "prometheus"
   }
 }
 

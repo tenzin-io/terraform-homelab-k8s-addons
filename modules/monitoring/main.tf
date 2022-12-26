@@ -203,4 +203,9 @@ resource "helm_release" "metrics_server" {
     value = "15s"
   }
 
+  set {
+    name = "serviceMonitor.additionalLabels.release"
+    value = "prometheus"
+  }
+
 }
