@@ -198,4 +198,9 @@ resource "helm_release" "metrics_server" {
     value = true
   }
 
+  set {
+    name = "serviceMonitor.interval"
+    value = "15s"
+  }
+
 }
