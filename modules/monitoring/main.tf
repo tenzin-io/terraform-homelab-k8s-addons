@@ -43,7 +43,7 @@ data "kubernetes_secret" "splunk_secrets" {
   }
 }
 
-variable "domain_name" {
+variable "external_domain_name" {
   type        = string
   description = "The domain name to place hosts when building Ingress manifests"
 }
@@ -62,7 +62,7 @@ resource "kubernetes_ingress_v1" "splunk_ingress" {
 
   spec {
     rule {
-      host = "splunk.${var.domain_name}"
+      host = "splunk.${var.external_domain_name}"
       http {
         path {
           backend {
@@ -80,7 +80,7 @@ resource "kubernetes_ingress_v1" "splunk_ingress" {
     }
 
     tls {
-      hosts       = ["splunk.${var.domain_name}"]
+      hosts       = ["splunk.${var.external_domain_name}"]
       secret_name = "splunk-tls-secret"
     }
   }
@@ -130,7 +130,7 @@ data "template_file" "prometheus_values" {
   template = file("${path.module}/kube-prometheus-stack/values.yaml")
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
-    domain_name            = var.domain_name
+    external_domain_name            = var.external_domain_name
   }
 }
 

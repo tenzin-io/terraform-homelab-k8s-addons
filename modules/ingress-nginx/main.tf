@@ -133,7 +133,7 @@ resource "kubernetes_manifest" "lets_encrypt_certificate_issuer" {
   }
 }
 
-variable "domain_name" {
+variable "external_domain_name" {
   type        = string
   description = "The domain name to place hosts when building Ingress manifests"
 }
@@ -156,7 +156,7 @@ resource "kubernetes_ingress_v1" "kubernete_api_ingress" {
 
   spec {
     rule {
-      host = "k8s.${var.domain_name}"
+      host = "k8s.${var.external_domain_name}"
       http {
         path {
           backend {
@@ -174,7 +174,7 @@ resource "kubernetes_ingress_v1" "kubernete_api_ingress" {
     }
 
     tls {
-      hosts       = ["k8s.${var.domain_name}"]
+      hosts       = ["k8s.${var.external_domain_name}"]
       secret_name = "kubernetes-apiserver-tls-secret"
     }
   }

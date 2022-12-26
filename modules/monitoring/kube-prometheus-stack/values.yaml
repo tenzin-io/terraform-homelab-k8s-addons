@@ -8,12 +8,12 @@ grafana:
       "kubernetes.io/ingress.class": "nginx"
       "cert-manager.io/cluster-issuer": "lets-encrypt"
     hosts:
-      - "grafana.${domain_name}"
+      - "grafana.${external_domain_name}"
     path: "/"
     tls:
       - secretName: grafana-tls-secret
         hosts:
-          - "grafana.${domain_name}"
+          - "grafana.${external_domain_name}"
 
 alertmanager:
   enabled: false
