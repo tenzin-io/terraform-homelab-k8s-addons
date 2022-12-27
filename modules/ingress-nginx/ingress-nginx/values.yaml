@@ -32,23 +32,3 @@ controller:
         capabilities:
           add:
           - NET_ADMIN
-
-  #  - name: lemonldap-ng-controller
-  #    image: lemonldapng/lemonldap-ng-controller:0.2.0
-  #    args:
-  #      - /lemonldap-ng-controller
-  #      - --alsologtostderr
-  #      - --configmap=$(POD_NAMESPACE)/lemonldap-ng-configuration
-  #    env:
-  #      - name: POD_NAME
-  #        valueFrom:
-  #          fieldRef:
-  #            fieldPath: metadata.name
-  #      - name: POD_NAMESPACE
-  #        valueFrom:
-  #          fieldRef:
-  #            fieldPath: metadata.namespace
-  #    volumeMounts:
-  #    - name: copy-portal-skins
-  #      mountPath: /srv/var/lib/lemonldap-ng/portal/skins
-
