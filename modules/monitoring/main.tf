@@ -130,7 +130,7 @@ data "template_file" "prometheus_values" {
   template = file("${path.module}/kube-prometheus-stack/values.yaml")
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
-    external_domain_name            = var.external_domain_name
+    external_domain_name   = var.external_domain_name
   }
 }
 

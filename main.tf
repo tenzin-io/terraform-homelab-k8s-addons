@@ -83,9 +83,9 @@ variable "external_domain_name" {
 }
 
 module "monitoring" {
-  depends_on  = [module.nfs_subdir]
-  count       = var.enable_monitoring && var.enable_nfs_subdir ? 1 : 0
-  source      = "./modules/monitoring"
+  depends_on           = [module.nfs_subdir]
+  count                = var.enable_monitoring && var.enable_nfs_subdir ? 1 : 0
+  source               = "./modules/monitoring"
   external_domain_name = var.external_domain_name
 }
 
@@ -99,7 +99,7 @@ variable "enable_ingress_nginx" {
 }
 
 variable "tailscale_auth_key" {
-  type = string
+  type        = string
   description = "The Tailscale auth key to join to the tailnet."
 }
 
@@ -115,14 +115,14 @@ variable "contact_email" {
 }
 
 module "ingress_nginx" {
-  depends_on         = [module.monitoring]
-  count              = var.enable_ingress_nginx ? 1 : 0
-  source             = "./modules/ingress-nginx"
-  monitoring_enabled = var.enable_monitoring
-  cloudflare_api_token   = var.cloudflare_api_token
-  tailscale_auth_key = var.tailscale_auth_key
-  contact_email  = var.contact_email
-  external_domain_name        = var.external_domain_name
+  depends_on           = [module.monitoring]
+  count                = var.enable_ingress_nginx ? 1 : 0
+  source               = "./modules/ingress-nginx"
+  monitoring_enabled   = var.enable_monitoring
+  cloudflare_api_token = var.cloudflare_api_token
+  tailscale_auth_key   = var.tailscale_auth_key
+  contact_email        = var.contact_email
+  external_domain_name = var.external_domain_name
 }
 
 #
@@ -135,15 +135,15 @@ variable "enable_vault" {
 }
 
 variable "vault_backup_git_url" {
-  type = string
+  type        = string
   description = "A URL to a Git repo containing the Vault data backup."
 }
 
 module "vault" {
-  depends_on         = [module.monitoring]
-  count = var.enable_vault ? 1 : 0
-  source = "./modules/vault"
-  monitoring_enabled = var.enable_monitoring
+  depends_on           = [module.monitoring]
+  count                = var.enable_vault ? 1 : 0
+  source               = "./modules/vault"
+  monitoring_enabled   = var.enable_monitoring
   vault_backup_git_url = var.vault_backup_git_url
   external_domain_name = var.external_domain_name
 }

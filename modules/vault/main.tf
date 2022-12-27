@@ -9,7 +9,7 @@ variable "monitoring_enabled" {
 }
 
 variable "vault_backup_git_url" {
-  type = string
+  type        = string
   description = "A URL to a Git repo containing the Vault data backup."
 }
 
@@ -28,13 +28,13 @@ resource "helm_release" "vault" {
 
   values = [
     data.template_file.vault_values.rendered
-    ]
+  ]
 }
 
 data "template_file" "vault_values" {
   template = file("${path.module}/values.yaml")
   vars = {
-    monitoring_enabled = var.monitoring_enabled
+    monitoring_enabled   = var.monitoring_enabled
     vault_backup_git_url = var.vault_backup_git_url
     external_domain_name = var.external_domain_name
   }

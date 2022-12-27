@@ -14,20 +14,20 @@ variable "monitoring_enabled" {
 
 locals {
   tailscale_auth_key_secret_name = "tailscale-auth-key-secret"
-  tailscale_state_secret_name = "tailscale-state-secret"
+  tailscale_state_secret_name    = "tailscale-state-secret"
 }
 
 data "template_file" "ingress_nginx_values" {
   template = file("${path.module}/ingress-nginx/values.yaml")
   vars = {
-    monitoring_enabled = var.monitoring_enabled 
+    monitoring_enabled             = var.monitoring_enabled
     tailscale_auth_key_secret_name = local.tailscale_auth_key_secret_name
-    tailscale_state_secret_name = local.tailscale_state_secret_name
+    tailscale_state_secret_name    = local.tailscale_state_secret_name
   }
 }
 
 variable "tailscale_auth_key" {
-  type = string
+  type        = string
   description = "The Tailscale auth key to join to the tailnet."
 }
 
@@ -45,14 +45,14 @@ resource "kubernetes_secret_v1" "tailscale_auth_key_secret" {
 resource "kubernetes_role_v1" "tailscale_role" {
 
   metadata {
-    name = "tailscale-role"
+    name      = "tailscale-role"
     namespace = local.namespace
   }
 
   rule {
     api_groups     = [""]
     resources      = ["secrets"]
-    resource_names = [ local.tailscale_auth_key_secret_name, local.tailscale_state_secret_name ]
+    resource_names = [local.tailscale_auth_key_secret_name, local.tailscale_state_secret_name]
     verbs          = ["get", "update", "patch"]
   }
   rule {
@@ -80,26 +80,26 @@ resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
 }
 
 resource "helm_release" "ingress_nginx" {
-  depends_on = [kubernetes_secret_v1.tailscale_auth_key_secret, kubernetes_role_v1.tailscale_role, kubernetes_role_binding_v1.tailscale_role_binding]
+  depends_on       = [kubernetes_secret_v1.tailscale_auth_key_secret, kubernetes_role_v1.tailscale_role, kubernetes_role_binding_v1.tailscale_role_binding]
   name             = "ingress-nginx"
   chart            = "ingress-nginx"
   namespace        = local.namespace
   create_namespace = true
   repository       = "https://kubernetes.github.io/ingress-nginx"
   version          = "4.4.0"
-  values = [ data.template_file.ingress_nginx_values.rendered ]
+  values           = [data.template_file.ingress_nginx_values.rendered]
 }
 
 #
 # Cert-manager setup
 #
 resource "helm_release" "cert_manager" {
-  depends_on    = [helm_release.ingress_nginx]
-  name          = "cert-manager"
-  namespace     = local.namespace
-  repository    = "https://charts.jetstack.io"
-  chart         = "cert-manager"
-  version       = "1.10.1"
+  depends_on = [helm_release.ingress_nginx]
+  name       = "cert-manager"
+  namespace  = local.namespace
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "1.10.1"
 
   set {
     name  = "installCRDs"
@@ -145,15 +145,15 @@ resource "kubernetes_secret_v1" "cloudflare_api_token_secret" {
 }
 
 resource "helm_release" "cert_manager_cr" {
-  depends_on = [ helm_release.cert_manager ]
-  name = "cert-manager-custom-resources"
+  depends_on = [helm_release.cert_manager]
+  name       = "cert-manager-custom-resources"
   chart      = "${path.module}/cert-manager-cr-chart"
   set {
-    name = "cloudflare.apiToken.secretName"
+    name  = "cloudflare.apiToken.secretName"
     value = local.cloudflare_api_token_secret_name
   }
   set {
-    name = "cloudflare.contactEmail"
+    name  = "cloudflare.contactEmail"
     value = var.contact_email
   }
 }
