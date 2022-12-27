@@ -1,0 +1,4 @@
+cloudflare:
+  apiToken:
+    secretName: cloudflare-api-token-secret
+  contactEmail: root@localhost

@@ -98,13 +98,18 @@ variable "enable_ingress_nginx" {
   default     = false
 }
 
-variable "cloudflare_token" {
+variable "tailscale_auth_key" {
+  type = string
+  description = "The Tailscale auth key to join to the tailnet."
+}
+
+variable "cloudflare_api_token" {
   type        = string
   description = "CloudFlare API token"
   sensitive   = true
 }
 
-variable "certificate_email" {
+variable "contact_email" {
   type        = string
   description = "Certificate expiry contact email."
 }
@@ -114,8 +119,9 @@ module "ingress_nginx" {
   count              = var.enable_ingress_nginx ? 1 : 0
   source             = "./modules/ingress-nginx"
   monitoring_enabled = var.enable_monitoring
-  cloudflare_token   = var.cloudflare_token
-  certificate_email  = var.certificate_email
+  cloudflare_api_token   = var.cloudflare_api_token
+  tailscale_auth_key = var.tailscale_auth_key
+  contact_email  = var.contact_email
   external_domain_name        = var.external_domain_name
 }
 

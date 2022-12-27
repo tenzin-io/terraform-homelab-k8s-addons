@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cert-manager-cr-chart
+description: A chart to deploy custom cert-manager resources after cert-manager installation
+type: application
+version: 0.0.1
+appVersion: "0.0.1"

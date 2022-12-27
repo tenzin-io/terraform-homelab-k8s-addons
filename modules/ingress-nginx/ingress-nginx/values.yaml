@@ -1,0 +1,54 @@
+controller:
+  metrics:
+    enabled: ${monitoring_enabled}
+    serviceMonitor:
+      enabled: ${monitoring_enabled}
+
+      additionalLabels:
+        release: "prometheus"
+
+  admissionWebhooks:
+    enabled: false
+
+  ingressClassResource:
+    default: true
+  
+  extraContainers:
+    - name: tailscale-sidecar
+      imagePullPolicy: Always
+      image: "ghcr.io/tailscale/tailscale:latest"
+      env:
+      - name: TS_KUBE_SECRET
+        value: ${tailscale_state_secret_name}
+      - name: TS_USERSPACE
+        value: "false"
+      - name: TS_AUTH_KEY
+        valueFrom:
+          secretKeyRef:
+            name: ${tailscale_auth_key_secret_name}
+            key: ts_auth_key
+            optional: true
+      securityContext:
+        capabilities:
+          add:
+          - NET_ADMIN
+
+  #  - name: lemonldap-ng-controller
+  #    image: lemonldapng/lemonldap-ng-controller:0.2.0
+  #    args:
+  #      - /lemonldap-ng-controller
+  #      - --alsologtostderr
+  #      - --configmap=$(POD_NAMESPACE)/lemonldap-ng-configuration
+  #    env:
+  #      - name: POD_NAME
+  #        valueFrom:
+  #          fieldRef:
+  #            fieldPath: metadata.name
+  #      - name: POD_NAMESPACE
+  #        valueFrom:
+  #          fieldRef:
+  #            fieldPath: metadata.namespace
+  #    volumeMounts:
+  #    - name: copy-portal-skins
+  #      mountPath: /srv/var/lib/lemonldap-ng/portal/skins
+
