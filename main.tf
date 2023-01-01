@@ -147,3 +147,16 @@ module "vault" {
   vault_backup_git_url = var.vault_backup_git_url
   external_domain_name = var.external_domain_name
 }
+
+variable "enable_artifactory" {
+  type = bool
+  default = false
+  description = "Enable the Artifactory JCR add-on"
+}
+
+module "artifactory" {
+  depends_on           = [module.monitoring]
+  source = "./modules/artifactory"
+  count = var.enable_artifactory ? 1 : 0
+  external_domain_name = var.external_domain_name
+}
