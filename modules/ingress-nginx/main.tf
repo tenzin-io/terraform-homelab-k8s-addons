@@ -205,3 +205,56 @@ resource "kubernetes_ingress_v1" "kubernete_api_ingress" {
   }
 }
 
+variable "enable_external_services" {
+  type = bool
+  description = "Enable access to services not hosted on the Kubernetes cluster"
+  default = false
+}
+
+variable "external_services"  {
+  type = map(object({
+    address = string
+    protocol = string
+    port = string
+    virtualHost = string
+  }))
+  default = {}
+  description = "A map of external services to expose from the Ingress controller"
+}
+
+resource "helm_release" "external_services" {
+  for_each = var.external_services
+  chart = "${path.module}/external-services"
+  name = "${each.key}-external-service"
+  namespace = local.namespace
+
+  set {
+    name = "clusterIssuer"
+    value = "lets-encrypt"
+  }
+    
+  set {
+    name = "externalServiceName" 
+    value = each.key
+  }
+
+  set {
+    name = "server.address"
+    value = each.value.address
+  }
+
+  set {
+    name = "server.protocol"
+    value = each.value.protocol
+  } 
+
+  set {
+    name = "server.port"
+    value = each.value.port
+  }
+
+  set {
+    name = "ingressVirtualHost"
+    value = each.value.virtualHost  
+  }
+}

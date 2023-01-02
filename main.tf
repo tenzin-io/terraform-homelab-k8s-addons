@@ -114,6 +114,25 @@ variable "contact_email" {
   description = "Certificate expiry contact email."
 }
 
+variable "enable_external_services" {
+  type = bool
+  description = "Enable access to services not hosted on the Kubernetes cluster"
+  default = false
+}
+
+variable "external_services"  {
+  type = map(object({
+    address = string
+    protocol = string
+    port = string
+    virtualHost = string
+  }))
+  default = {}
+  description = "A map of external services to expose from the Ingress controller"
+}
+
+
+
 module "ingress_nginx" {
   depends_on           = [module.monitoring]
   count                = var.enable_ingress_nginx ? 1 : 0
@@ -123,6 +142,8 @@ module "ingress_nginx" {
   tailscale_auth_key   = var.tailscale_auth_key
   contact_email        = var.contact_email
   external_domain_name = var.external_domain_name
+  enable_external_services = var.enable_external_services
+  external_services = var.external_services
 }
 
 #

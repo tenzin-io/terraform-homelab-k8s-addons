@@ -1,0 +1,6 @@
+apiVersion: v2
+name: external-services
+description: Expose services outside of Kubernetes cluster using the Ingress controller
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
