@@ -115,35 +115,35 @@ variable "contact_email" {
 }
 
 variable "enable_external_services" {
-  type = bool
+  type        = bool
   description = "Enable access to services not hosted on the Kubernetes cluster"
-  default = false
+  default     = false
 }
 
-variable "external_services"  {
+variable "external_services" {
   type = map(object({
-    address = string
-    protocol = string
-    port = string
+    address     = string
+    protocol    = string
+    port        = string
     virtualHost = string
   }))
-  default = {}
+  default     = {}
   description = "A map of external services to expose from the Ingress controller"
 }
 
 
 
 module "ingress_nginx" {
-  depends_on           = [module.monitoring]
-  count                = var.enable_ingress_nginx ? 1 : 0
-  source               = "./modules/ingress-nginx"
-  monitoring_enabled   = var.enable_monitoring
-  cloudflare_api_token = var.cloudflare_api_token
-  tailscale_auth_key   = var.tailscale_auth_key
-  contact_email        = var.contact_email
-  external_domain_name = var.external_domain_name
+  depends_on               = [module.monitoring]
+  count                    = var.enable_ingress_nginx ? 1 : 0
+  source                   = "./modules/ingress-nginx"
+  monitoring_enabled       = var.enable_monitoring
+  cloudflare_api_token     = var.cloudflare_api_token
+  tailscale_auth_key       = var.tailscale_auth_key
+  contact_email            = var.contact_email
+  external_domain_name     = var.external_domain_name
   enable_external_services = var.enable_external_services
-  external_services = var.external_services
+  external_services        = var.external_services
 }
 
 #
@@ -167,4 +167,39 @@ module "vault" {
   monitoring_enabled   = var.enable_monitoring
   vault_backup_git_url = var.vault_backup_git_url
   external_domain_name = var.external_domain_name
+}
+
+variable "enable_github_actions_runner" {
+  type    = bool
+  default = false
+}
+
+variable "github_org_name" {
+  type    = string
+  default = null
+}
+
+variable "github_app_id" {
+  type    = string
+  default = null
+}
+
+variable "github_app_installation_id" {
+  type    = string
+  default = null
+}
+
+variable "github_app_private_key" {
+  type      = string
+  sensitive = true
+  default   = null
+}
+
+module "github_actions_runner_controller" {
+  count                      = var.enable_github_actions_runner ? 1 : 0
+  source                     = "./modules/actions-runner-controller"
+  github_app_id              = var.github_app_id
+  github_app_installation_id = var.github_app_installation_id
+  github_app_private_key     = var.github_app_private_key
+  github_org_name            = var.github_org_name
 }
