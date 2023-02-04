@@ -40,6 +40,8 @@ resource "kubernetes_secret_v1" "tailscale_auth_key_secret" {
   data = {
     ts_auth_key = var.tailscale_auth_key
   }
+
+  depends_on = [helm_release.ingress_nginx]
 }
 
 resource "kubernetes_role_v1" "tailscale_role" {
@@ -60,6 +62,7 @@ resource "kubernetes_role_v1" "tailscale_role" {
     resources  = ["secrets"]
     verbs      = ["create"]
   }
+  depends_on = [helm_release.ingress_nginx]
 }
 
 resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
@@ -77,6 +80,7 @@ resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
     name      = "ingress-nginx"
     namespace = local.namespace
   }
+  depends_on = [helm_release.ingress_nginx]
 }
 
 resource "helm_release" "ingress_nginx" {
