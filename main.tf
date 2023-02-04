@@ -80,7 +80,7 @@ variable "enable_monitoring" {
 variable "external_domain_name" {
   type        = string
   description = "The external domain name to place hosts when building Ingress manifests"
-  default = null
+  default     = null
 }
 
 module "monitoring" {
@@ -102,20 +102,20 @@ variable "enable_ingress_nginx" {
 variable "tailscale_auth_key" {
   type        = string
   description = "The Tailscale auth key to join to the tailnet."
-  default = null
+  default     = null
 }
 
 variable "cloudflare_api_token" {
   type        = string
   description = "CloudFlare API token"
   sensitive   = true
-  default = null
+  default     = null
 }
 
 variable "contact_email" {
   type        = string
   description = "Certificate expiry contact email."
-  default = null
+  default     = null
 }
 
 variable "enable_external_services" {
@@ -162,7 +162,7 @@ variable "enable_vault" {
 variable "vault_backup_git_url" {
   type        = string
   description = "A URL to a Git repo containing the Vault data backup."
-  default = null
+  default     = null
 }
 
 module "vault" {
