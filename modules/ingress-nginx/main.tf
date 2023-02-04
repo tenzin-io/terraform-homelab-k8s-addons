@@ -84,7 +84,6 @@ resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
 }
 
 resource "helm_release" "ingress_nginx" {
-  depends_on       = [kubernetes_secret_v1.tailscale_auth_key_secret, kubernetes_role_v1.tailscale_role, kubernetes_role_binding_v1.tailscale_role_binding]
   name             = "ingress-nginx"
   chart            = "ingress-nginx"
   namespace        = local.namespace
