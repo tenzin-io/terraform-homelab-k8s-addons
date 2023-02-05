@@ -12,12 +12,12 @@ resource "kubernetes_namespace_v1" "monitoring" {
 }
 
 resource "helm_release" "splunk_enterprise" {
-  depends_on = [kubernetes_namespace_v1.monitoring]
-  name       = "splunk-enterprise"
-  chart      = "splunk-enterprise"
-  repository = "https://splunk.github.io/splunk-operator"
-  version    = "2.2.0"
-  namespace  = local.namespace
+  depends_on    = [kubernetes_namespace_v1.monitoring]
+  name          = "splunk-enterprise"
+  chart         = "splunk-enterprise"
+  repository    = "https://splunk.github.io/splunk-operator"
+  version       = "2.2.0"
+  namespace     = local.namespace
   wait_for_jobs = true
   set {
     name  = "sva.s1.enabled"
@@ -26,7 +26,7 @@ resource "helm_release" "splunk_enterprise" {
 
   set {
     name  = "splunk-operator.enabled"
-    value = false
+    value = true
   }
 
   set {
@@ -102,7 +102,7 @@ resource "kubernetes_ingress_v1" "splunk_ingress" {
 # Fluent Bit
 #
 resource "helm_release" "fluent_bit" {
-  depends_on = [helm_release.splunk_operator]
+  depends_on = [helm_release.splunk_enterprise]
   name       = "fluent-bit"
   chart      = "fluent-bit"
   repository = "https://fluent.github.io/helm-charts"
