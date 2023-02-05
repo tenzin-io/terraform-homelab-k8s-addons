@@ -68,8 +68,7 @@ resource "helm_release" "actions_runner_deployment" {
   depends_on = [helm_release.actions_runner_controller]
   name       = "actions-runner-deployment"
   namespace  = local.namespace
-  repository = "${path.module}/actions-runner-deployment"
-  chart      = "actions-runner-deployment"
+  chart      = "${path.module}/actions-runner-deployment"
   set {
     name  = "github_org_name"
     value = var.github_org_name
