@@ -64,24 +64,19 @@ resource "helm_release" "actions_runner_controller" {
 
 }
 
-resource "kubernetes_manifest" "actions_runner_deployment" {
+resource "helm_release" "actions_runner_deployment" {
   depends_on = [helm_release.actions_runner_controller]
-  manifest = {
-    apiVersion = "actions.summerwind.dev/v1alpha1"
-    kind       = "RunnerDeployment"
-    metadata = {
-      name      = "${var.github_org_name}-actions-runner"
-      namespace = local.namespace
-    }
-
-    spec = {
-      replicas = var.github_runners_ready
-      template = {
-        spec = {
-          organization : var.github_org_name
-        }
-      }
-    }
+  name       = "actions-runner-deployment"
+  namespace  = local.namespace
+  repository = "${path.module}/actions-runner-deployment"
+  chart      = "actions-runner-deployment"
+  set {
+    name  = "github_org_name"
+    value = var.github_org_name
+  }
+  set {
+    name  = "github_runners_ready"
+    value = var.github_runners_ready
   }
 }
 
