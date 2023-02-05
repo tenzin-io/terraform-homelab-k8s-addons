@@ -39,3 +39,66 @@ data "template_file" "vault_values" {
     external_domain_name = var.external_domain_name
   }
 }
+
+resource "kubernetes_service_account_v1" "vault_trust" {
+  metadata {
+    name      = "vault-trust"
+    namespace = "kube-system"
+  }
+}
+
+resource "kubernetes_secret_v1" "vault_trust" {
+  metadata {
+    name      = "vault-trust"
+    namespace = "kube-system"
+    annotations = {
+      "kubernetes.io/service-account.name" = kubernetes_service_account_v1.vault_trust.metadata.0.name
+    }
+  }
+  type = "kubernetes.io/service-account-token"
+}
+
+resource "kubernetes_cluster_role_v1" "vault_trust" {
+  metadata {
+    name = "vault-trust"
+  }
+  rule {
+    api_groups = [""]
+    resources  = ["namespaces"]
+    verbs      = ["get"]
+  }
+
+  rule {
+    api_groups = [""]
+    resources  = ["serviceaccounts", "serviceaccounts/token"]
+    verbs      = ["create", "update", "delete"]
+  }
+
+  rule {
+    api_groups = ["rbac.authorization.k8s.io"]
+    resources  = ["rolebindings", "clusterrolebindings"]
+    verbs      = ["create", "update", "delete"]
+  }
+
+  rule {
+    api_groups = ["rbac.authorization.k8s.io"]
+    resources  = ["roles", "clusterroles"]
+    verbs      = ["bind", "escalate", "create", "update", "delete"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding_v1" "vault_trust" {
+  metadata {
+    name = "vault-trust"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = "vault-trust"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "vault-trust"
+    namespace = "kube-system"
+  }
+}
