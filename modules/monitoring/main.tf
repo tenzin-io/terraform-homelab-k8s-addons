@@ -11,24 +11,14 @@ resource "kubernetes_namespace_v1" "monitoring" {
   }
 }
 
-resource "helm_release" "splunk_operator" {
-  depends_on    = [kubernetes_namespace_v1.monitoring]
-  name          = "splunk-operator"
-  chart         = "splunk-operator"
-  repository    = "https://splunk.github.io/splunk-operator"
-  version       = "1.0.0"
-  namespace     = local.namespace
-  wait_for_jobs = true
-}
-
 resource "helm_release" "splunk_enterprise" {
-  depends_on = [helm_release.splunk_operator]
+  depends_on = [kubernetes_namespace_v1.monitoring]
   name       = "splunk-enterprise"
   chart      = "splunk-enterprise"
   repository = "https://splunk.github.io/splunk-operator"
-  version    = "1.0.0"
+  version    = "2.2.0"
   namespace  = local.namespace
-  skip_crds  = true
+  wait_for_jobs = true
   set {
     name  = "sva.s1.enabled"
     value = true
