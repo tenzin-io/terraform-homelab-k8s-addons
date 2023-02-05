@@ -18,13 +18,23 @@ variable "external_domain_name" {
   description = "The external domain name to place hosts when building Ingress manifests"
 }
 
+locals {
+  namespace = "vault"
+}
+
+resource "kubernetes_namespace_v1" "vault" {
+  metadata {
+    name = local.namespace
+  }
+}
+
 resource "helm_release" "vault" {
-  repository       = "https://helm.releases.hashicorp.com"
-  chart            = "vault"
-  name             = "vault"
-  namespace        = "vault-system"
-  version          = "0.23.0"
-  create_namespace = true
+  depends_on = [kubernetes_namespace_v1.vault]
+  repository = "https://helm.releases.hashicorp.com"
+  chart      = "vault"
+  name       = "vault"
+  namespace  = local.namespace
+  version    = "0.23.0"
 
   values = [
     data.template_file.vault_values.rendered

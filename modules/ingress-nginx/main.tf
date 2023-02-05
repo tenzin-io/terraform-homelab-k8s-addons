@@ -3,7 +3,7 @@
 #
 
 locals {
-  namespace = "nginx-system"
+  namespace = "ingress"
 }
 
 variable "monitoring_enabled" {
@@ -31,14 +31,14 @@ variable "tailscale_auth_key" {
   description = "The Tailscale auth key to join to the tailnet."
 }
 
-resource "kubernetes_namespace_v1" "nginx_system" {
+resource "kubernetes_namespace_v1" "ingress" {
   metadata {
     name = local.namespace
   }
 }
 
 resource "kubernetes_secret_v1" "tailscale_auth_key_secret" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   metadata {
     name      = local.tailscale_auth_key_secret_name
     namespace = local.namespace
@@ -50,7 +50,7 @@ resource "kubernetes_secret_v1" "tailscale_auth_key_secret" {
 }
 
 resource "kubernetes_role_v1" "tailscale_role" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   metadata {
     name      = "tailscale-role"
     namespace = local.namespace
@@ -70,7 +70,7 @@ resource "kubernetes_role_v1" "tailscale_role" {
 }
 
 resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   metadata {
     name      = "tailscale-role-binding"
     namespace = local.namespace
@@ -88,7 +88,7 @@ resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
 }
 
 resource "helm_release" "ingress_nginx" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   name       = "ingress-nginx"
   chart      = "ingress-nginx"
   namespace  = local.namespace
@@ -101,7 +101,7 @@ resource "helm_release" "ingress_nginx" {
 # Cert-manager setup
 #
 resource "helm_release" "cert_manager" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   name       = "cert-manager"
   namespace  = local.namespace
   repository = "https://charts.jetstack.io"
@@ -230,7 +230,7 @@ variable "external_services" {
 }
 
 resource "helm_release" "external_services" {
-  depends_on = [kubernetes_namespace_v1.nginx_system]
+  depends_on = [kubernetes_namespace_v1.ingress]
   for_each   = var.external_services
   chart      = "${path.module}/external-services"
   name       = "${each.key}-external-service"

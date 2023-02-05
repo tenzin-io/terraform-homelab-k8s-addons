@@ -5,14 +5,20 @@ locals {
   namespace = "monitoring"
 }
 
+resource "kubernetes_namespace_v1" "monitoring" {
+  metadata {
+    name = local.namespace
+  }
+}
+
 resource "helm_release" "splunk_operator" {
-  name             = "splunk-operator"
-  chart            = "splunk-operator"
-  repository       = "https://splunk.github.io/splunk-operator"
-  version          = "1.0.0"
-  namespace        = local.namespace
-  create_namespace = true
-  wait_for_jobs    = true
+  depends_on    = [kubernetes_namespace_v1.monitoring]
+  name          = "splunk-operator"
+  chart         = "splunk-operator"
+  repository    = "https://splunk.github.io/splunk-operator"
+  version       = "1.0.0"
+  namespace     = local.namespace
+  wait_for_jobs = true
 }
 
 resource "helm_release" "splunk_enterprise" {
@@ -131,7 +137,7 @@ data "template_file" "fluent_bit_config_outputs" {
 # Prometheus operator
 #
 resource "helm_release" "prometheus" {
-  depends_on = [helm_release.splunk_operator]
+  depends_on = [kubernetes_namespace_v1.monitoring]
   name       = "prometheus"
   chart      = "kube-prometheus-stack"
   repository = "https://prometheus-community.github.io/helm-charts"

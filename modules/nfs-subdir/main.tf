@@ -25,16 +25,23 @@ variable "defaultStorageClass" {
 }
 
 locals {
-  namespace = "storage-system"
+  namespace = "storage"
+}
+
+
+resource "kubernetes_namespace_v1" "storage" {
+  metadata {
+    name = local.namespace
+  }
 }
 
 resource "helm_release" "nfs_subdir" {
-  name             = "nfs-subdir"
-  repository       = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
-  chart            = "nfs-subdir-external-provisioner"
-  version          = "4.0.16"
-  namespace        = local.namespace
-  create_namespace = true
+  depends_on = [kubernetes_namespace_v1.storage]
+  name       = "nfs-subdir"
+  repository = "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
+  chart      = "nfs-subdir-external-provisioner"
+  version    = "4.0.16"
+  namespace  = local.namespace
 
   set {
     name  = "nfs.server"

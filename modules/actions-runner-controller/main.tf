@@ -32,11 +32,11 @@ resource "kubernetes_namespace_v1" "actions" {
 
 resource "helm_release" "actions_runner_controller" {
   depends_on = [kubernetes_namespace_v1.actions]
-  name             = "actions-runner-controller"
-  namespace        = local.namespace
-  repository       = "https://actions-runner-controller.github.io/actions-runner-controller"
-  chart            = "actions-runner-controller"
-  version          = "0.21.1"
+  name       = "actions-runner-controller"
+  namespace  = local.namespace
+  repository = "https://actions-runner-controller.github.io/actions-runner-controller"
+  chart      = "actions-runner-controller"
+  version    = "0.21.1"
   set {
     name  = "authSecret.create"
     value = true

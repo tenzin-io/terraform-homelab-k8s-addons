@@ -8,16 +8,22 @@ variable "ip_pool_range" {
 }
 
 locals {
-  namespace = "metallb-system"
+  namespace = "metallb"
+}
+
+resource "kubernetes_namespace_v1" "metallb" {
+  metadata {
+    name = local.namespace
+  }
 }
 
 resource "helm_release" "metallb" {
-  name             = "metallb"
-  repository       = "https://metallb.github.io/metallb"
-  chart            = "metallb"
-  version          = "0.13.7"
-  namespace        = local.namespace
-  create_namespace = true
+  depends_on = [kubernetes_namespace_v1.metallb]
+  name       = "metallb"
+  repository = "https://metallb.github.io/metallb"
+  chart      = "metallb"
+  version    = "0.13.7"
+  namespace  = local.namespace
 }
 
 resource "helm_release" "metallb_config" {
