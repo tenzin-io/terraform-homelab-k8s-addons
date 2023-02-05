@@ -23,9 +23,25 @@ resource "helm_release" "splunk_enterprise" {
   version    = "1.0.0"
   namespace  = local.namespace
   skip_crds  = true
-  values = [
-    file("${path.module}/splunk-enterprise/values.yaml")
-  ]
+  set {
+    name  = "sva.s1.enabled"
+    value = true
+  }
+
+  set {
+    name  = "splunk-operator.enabled"
+    value = false
+  }
+
+  set {
+    name  = "clusterMaster.enabled"
+    value = true
+  }
+
+  set {
+    name  = "searchHeadCluster.enabled"
+    value = true
+  }
 }
 
 # Wait 10 seconds after Helm installation of Splunk Enterprise chart.
