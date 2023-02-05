@@ -21,14 +21,19 @@ variable "github_runners_ready" {
 }
 
 locals {
-  namespace = "actions-runner-system"
+  namespace = "actions"
 }
 
+resource "kubernetes_namespace_v1" "actions" {
+  metadata {
+    name = local.namespace
+  }
+}
 
 resource "helm_release" "actions_runner_controller" {
+  depends_on = [kubernetes_namespace_v1.actions]
   name             = "actions-runner-controller"
   namespace        = local.namespace
-  create_namespace = true
   repository       = "https://actions-runner-controller.github.io/actions-runner-controller"
   chart            = "actions-runner-controller"
   version          = "0.21.1"
