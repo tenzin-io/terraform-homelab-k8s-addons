@@ -201,6 +201,7 @@ variable "github_app_private_key" {
 }
 
 module "github_actions_runner_controller" {
+  depends_on                 = [module.ingress_nginx]
   count                      = var.enable_github_actions_runner ? 1 : 0
   source                     = "./modules/actions-runner-controller"
   github_app_id              = var.github_app_id
