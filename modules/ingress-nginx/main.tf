@@ -31,6 +31,12 @@ variable "tailscale_auth_key" {
   description = "The Tailscale auth key to join to the tailnet."
 }
 
+resource "kubernetes_namespace_v1" "nginx_system" {
+  metadata {
+    name = local.namespace
+  }
+}
+
 resource "kubernetes_secret_v1" "tailscale_auth_key_secret" {
   metadata {
     name      = local.tailscale_auth_key_secret_name
@@ -84,20 +90,20 @@ resource "kubernetes_role_binding_v1" "tailscale_role_binding" {
 }
 
 resource "helm_release" "ingress_nginx" {
-  name             = "ingress-nginx"
-  chart            = "ingress-nginx"
-  namespace        = local.namespace
-  create_namespace = true
-  repository       = "https://kubernetes.github.io/ingress-nginx"
-  version          = "4.4.0"
-  values           = [data.template_file.ingress_nginx_values.rendered]
+  depends_on = [kubernetes_namespace_v1.nginx_system]
+  name       = "ingress-nginx"
+  chart      = "ingress-nginx"
+  namespace  = local.namespace
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  version    = "4.4.0"
+  values     = [data.template_file.ingress_nginx_values.rendered]
 }
 
 #
 # Cert-manager setup
 #
 resource "helm_release" "cert_manager" {
-  depends_on = [helm_release.ingress_nginx]
+  depends_on = [kubernetes_namespace_v1.nginx_system]
   name       = "cert-manager"
   namespace  = local.namespace
   repository = "https://charts.jetstack.io"
@@ -226,10 +232,11 @@ variable "external_services" {
 }
 
 resource "helm_release" "external_services" {
-  for_each  = var.external_services
-  chart     = "${path.module}/external-services"
-  name      = "${each.key}-external-service"
-  namespace = local.namespace
+  depends_on = [kubernetes_namespace_v1.nginx_system]
+  for_each   = var.external_services
+  chart      = "${path.module}/external-services"
+  name       = "${each.key}-external-service"
+  namespace  = local.namespace
 
   set {
     name  = "clusterIssuer"
