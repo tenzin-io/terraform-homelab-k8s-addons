@@ -1,0 +1,34 @@
+kind: AlertmanagerConfig
+apiVersion: monitoring.coreos.com/v1alpha1
+metadata:
+  name: {{ .Values.alertmanagerConfigName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  route:
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 1h
+    groupBy:
+      - alertname
+      - cluster
+      - namespace
+    receiver: "null"
+    routes:
+      - receiver: "null"
+        match:
+          alertname: Watchdog
+      - receiver: {{ .Values.receiver.name }}
+  receivers:
+    - name: "null"
+    - name: {{ .Values.receiver.name }}
+      webhookConfigs:
+        - url: {{ .Values.receiver.url }}
+          sendResolved: true
+          httpConfig:
+            basicAuth:
+              username:
+                name: {{ .Chart.Name }}-extra-secret
+                key: username
+              password:
+                name: {{ .Chart.Name }}-extra-secret
+                key: password

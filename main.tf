@@ -83,11 +83,32 @@ variable "external_domain_name" {
   default     = null
 }
 
+variable "alert_receiver_name" {
+  type = string
+  default = null
+}
+variable "alert_receiver_url" {
+  type = string
+  default = null
+}
+variable "alert_receiver_username" {
+  type = string
+  default = null
+}
+variable "alert_receiver_password" {
+  type = string
+  default = null
+}
 module "monitoring" {
   depends_on           = [module.nfs_subdir]
   count                = var.enable_monitoring && var.enable_nfs_subdir ? 1 : 0
   source               = "./modules/monitoring"
   external_domain_name = var.external_domain_name
+
+  alert_receiver_name = var.alert_receiver_name
+  alert_receiver_url = var.alert_receiver_url
+  alert_receiver_username= var.alert_receiver_username
+  alert_receiver_password = var.alert_receiver_password
 }
 
 #

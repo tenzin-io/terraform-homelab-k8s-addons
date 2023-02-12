@@ -115,7 +115,7 @@ resource "helm_release" "fluent_bit" {
 }
 
 data "template_file" "fluent_bit_config_outputs" {
-  template = file("${path.module}/fluent-bit/config.outputs.ini")
+  template = file("${path.module}/templates/fluent-bit/config.outputs.ini")
   vars = {
     splunk_hec_token = "${data.kubernetes_secret.splunk_secrets.data.hec_token}"
     splunk_host      = "splunk-stdln-standalone-service"
@@ -126,6 +126,10 @@ data "template_file" "fluent_bit_config_outputs" {
 #
 # Prometheus operator
 #
+locals {
+  alertmanager_config_name = "global-alertmanager-config"
+}
+
 resource "helm_release" "prometheus" {
   depends_on = [kubernetes_namespace_v1.monitoring]
   name       = "prometheus"
@@ -139,10 +143,67 @@ resource "helm_release" "prometheus" {
 }
 
 data "template_file" "prometheus_values" {
-  template = file("${path.module}/kube-prometheus-stack/values.yaml")
+  template = file("${path.module}/templates/kube-prometheus-stack/values.yaml")
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
     external_domain_name   = var.external_domain_name
+    alertmanager_config_name = local.alertmanager_config_name
+  }
+}
+
+#
+# Create AlertManagerConfig
+#
+
+variable "alert_receiver_name" {
+  type = string
+  default = "xmatters"
+  description = "Name of the AlertManager receiver"
+}
+
+variable "alert_receiver_url" {
+  type = string
+  description = "API URL to send webhook Alert requests"
+}
+
+variable "alert_receiver_username" {
+  type = string
+  description = "Username to use the API"
+}
+
+variable "alert_receiver_password" {
+  type = string
+  sensitive = true
+  description = "Password to use the API"
+}
+
+resource "helm_release" "alertmanager_config" {
+  depends_on = [ helm_release.prometheus ]
+  name = "alertmanager-config"
+  namespace = local.namespace
+  chart = "${path.module}/files/alertmanager-config"
+
+  set {
+    name = "alertmanagerConfigName"
+    value = local.alertmanager_config_name
+  }
+
+  set {
+    name = "receiver.name"
+    value = var.alert_receiver_name
+  }
+  set {
+    name = "receiver.url"
+    value = var.alert_receiver_url
+  }
+
+  set {
+    name = "receiver.username"
+    value = var.alert_receiver_username
+  }
+  set {
+    name = "receiver.password"
+    value = var.alert_receiver_password
   }
 }
 
