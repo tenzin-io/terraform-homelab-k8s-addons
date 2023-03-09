@@ -142,13 +142,19 @@ resource "helm_release" "prometheus" {
 data "template_file" "prometheus_values" {
   template = file("${path.module}/templates/kube-prometheus-stack/values.yaml")
   vars = {
-    grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
+    grafana_admin_password = var.grafana_admin_password
     external_domain_name   = var.external_domain_name
     alert_receiver_name = var.alert_receiver_name
     alert_receiver_url = var.alert_receiver_url
     alert_receiver_username = var.alert_receiver_username
     alert_receiver_password = var.alert_receiver_password
   }
+}
+
+variable "grafana_admin_password" {
+  type = string
+  description = "Grafana admin user password"
+  sensitive = true
 }
 
 variable "alert_receiver_name" {

@@ -99,11 +99,20 @@ variable "alert_receiver_password" {
   type = string
   default = null
 }
+
+variable "grafana_admin_password" {
+  type = string
+  sensitive = true
+  default = null
+}
+
 module "monitoring" {
   depends_on           = [module.nfs_subdir]
   count                = var.enable_monitoring && var.enable_nfs_subdir ? 1 : 0
   source               = "./modules/monitoring"
   external_domain_name = var.external_domain_name
+
+  grafana_admin_password = var.grafana_admin_password
 
   alert_receiver_name = var.alert_receiver_name
   alert_receiver_url = var.alert_receiver_url
