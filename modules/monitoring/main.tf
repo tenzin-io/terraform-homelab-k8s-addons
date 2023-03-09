@@ -115,6 +115,7 @@ resource "helm_release" "fluent_bit" {
 }
 
 data "template_file" "fluent_bit_config_outputs" {
+  depends_on = [helm_release.splunk_enterprise]
   template = file("${path.module}/templates/fluent-bit/config.outputs.ini")
   vars = {
     splunk_hec_token = "${data.kubernetes_secret.splunk_secrets.data.hec_token}"
