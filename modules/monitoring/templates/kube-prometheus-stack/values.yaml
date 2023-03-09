@@ -1,5 +1,34 @@
 defaultRules:
-  create: false
+  create: true
+  rules:
+    alertmanager: true
+    etcd: true
+    configReloaders: true
+    general: true
+    k8s: true
+    kubeApiserverAvailability: true
+    kubeApiserverBurnrate: true
+    kubeApiserverHistogram: true
+    kubeApiserverSlos: true
+    kubeControllerManager: true
+    kubelet: true
+    kubeProxy: true
+    kubePrometheusGeneral: true
+    kubePrometheusNodeRecording: true
+    kubernetesApps: true
+    kubernetesResources: true
+    kubernetesStorage: true
+    kubernetesSystem: true
+    kubeSchedulerAlerting: true
+    kubeSchedulerRecording: true
+    kubeStateMetrics: true
+    network: true
+    node: true
+    nodeExporterAlerting: true
+    nodeExporterRecording: true
+    prometheus: true
+    prometheusOperator: true
+
 grafana:
   enabled: true
   adminPassword: "${grafana_admin_password}"
@@ -34,6 +63,7 @@ alertmanager:
       receiver: "${alert_receiver_name}"
       routes:
         - receiver: "${alert_receiver_name}"
+
     inhibit_rules:
     receivers:
       - name: 'null'
