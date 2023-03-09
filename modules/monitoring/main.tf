@@ -42,13 +42,13 @@ resource "helm_release" "splunk_enterprise" {
 
 # Wait 10 seconds after Helm installation of Splunk Enterprise chart.
 # Terraform tries to read the splunk_secrets immediately and Splunk has yet to create them, which results in an error.
-resource "time_sleep" "wait_10_seconds" {
+resource "time_sleep" "wait_for_splunk_enterprise" {
   depends_on      = [helm_release.splunk_enterprise]
   create_duration = "10s"
 }
 
-data "kubernetes_secret" "splunk_secrets" {
-  depends_on = [time_sleep.wait_10_seconds]
+data "kubernetes_secret_v1" "splunk_secrets" {
+  depends_on = [helm_release.splunk_enterprise, time_sleep.wait_for_splunk_enterprise]
   metadata {
     name      = "splunk-stdln-standalone-secret-v1"
     namespace = local.namespace
@@ -118,7 +118,7 @@ data "template_file" "fluent_bit_config_outputs" {
   depends_on = [helm_release.splunk_enterprise]
   template = file("${path.module}/templates/fluent-bit/config.outputs.ini")
   vars = {
-    splunk_hec_token = "${data.kubernetes_secret.splunk_secrets.data.hec_token}"
+    splunk_hec_token = "${data.kubernetes_secret_v1.splunk_secrets.data.hec_token}"
     splunk_host      = "splunk-stdln-standalone-service"
     splunk_hec_port  = "8088"
   }
