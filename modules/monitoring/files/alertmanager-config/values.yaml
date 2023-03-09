@@ -1,6 +1,0 @@
-alertmanagerConfigName:
-receiver:
-  name:
-  url:
-  username:
-  password:

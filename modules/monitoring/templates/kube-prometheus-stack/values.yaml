@@ -21,10 +21,43 @@ alertmanager:
   enabled: true
   # blank out of the default AlertManager configuration
   config:
-  # create config in a dependent Helm release
-  alertmanagerSpec:
-    alertmanagerConfiguration:
-      name: "${alertmanager_config_name}"
+
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ['alertname','cluster','namespace']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+      receiver: "${alert_receiver_name}"
+      routes:
+        - receiver: "${alert_receiver_name}"
+    inhibit_rules:
+    receivers:
+      - name: 'null'
+      - name: "${alert_receiver_name}"
+        webhookConfigs:
+          - url: "${alert_receiver_url}"
+            sendResolved: true
+            httpConfig:
+              basicAuth:
+                username:
+                  name: alertmanager-extra-secrets
+                  key: ${alert_receiver_name}_username
+                password:
+                  name: alertmanager-extra-secrets
+                  key: ${alert_receiver_name}_password
+
+    templates:
+      - '/etc/alertmanager/config/*.tmpl'
+
+  extraSecret:
+    name: alertmanager-extra-secrets
+    data:
+      ${alert_receiver_name}_username: "${alert_receiver_username}"
+      ${alert_receiver_name}_password: "${alert_receiver_password}"
 
 kubelet:
   enabled: true

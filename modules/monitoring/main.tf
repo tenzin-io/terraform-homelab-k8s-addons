@@ -126,16 +126,13 @@ data "template_file" "fluent_bit_config_outputs" {
 #
 # Prometheus operator
 #
-locals {
-  alertmanager_config_name = "global-alertmanager-config"
-}
 
 resource "helm_release" "prometheus" {
   depends_on = [kubernetes_namespace_v1.monitoring]
   name       = "prometheus"
   chart      = "kube-prometheus-stack"
   repository = "https://prometheus-community.github.io/helm-charts"
-  version    = "43.1.4"
+  version    = "45.7.1"
   namespace  = local.namespace
   values = [
     data.template_file.prometheus_values.rendered
@@ -147,17 +144,15 @@ data "template_file" "prometheus_values" {
   vars = {
     grafana_admin_password = "${data.kubernetes_secret.splunk_secrets.data.password}"
     external_domain_name   = var.external_domain_name
-    alertmanager_config_name = local.alertmanager_config_name
+    alert_receiver_name = var.alert_receiver_name
+    alert_receiver_url = var.alert_receiver_url
+    alert_receiver_username = var.alert_receiver_username
+    alert_receiver_password = var.alert_receiver_password
   }
 }
 
-#
-# Create AlertManagerConfig
-#
-
 variable "alert_receiver_name" {
   type = string
-  default = "xmatters"
   description = "Name of the AlertManager receiver"
 }
 
@@ -175,36 +170,6 @@ variable "alert_receiver_password" {
   type = string
   sensitive = true
   description = "Password to use the API"
-}
-
-resource "helm_release" "alertmanager_config" {
-  depends_on = [ helm_release.prometheus ]
-  name = "alertmanager-config"
-  namespace = local.namespace
-  chart = "${path.module}/files/alertmanager-config"
-
-  set {
-    name = "alertmanagerConfigName"
-    value = local.alertmanager_config_name
-  }
-
-  set {
-    name = "receiver.name"
-    value = var.alert_receiver_name
-  }
-  set {
-    name = "receiver.url"
-    value = var.alert_receiver_url
-  }
-
-  set {
-    name = "receiver.username"
-    value = var.alert_receiver_username
-  }
-  set {
-    name = "receiver.password"
-    value = var.alert_receiver_password
-  }
 }
 
 #
