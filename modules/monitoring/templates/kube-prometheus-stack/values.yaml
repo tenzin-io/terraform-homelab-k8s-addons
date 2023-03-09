@@ -2,7 +2,7 @@ defaultRules:
   create: true
   rules:
     alertmanager: true
-    etcd: true
+    etcd: false
     configReloaders: true
     general: true
     k8s: true
@@ -66,26 +66,16 @@ alertmanager:
 
     receivers:
       - name: "${alert_receiver_name}"
-        webhookConfigs:
+        webhook_configs:
           - url: "${alert_receiver_url}"
-            sendResolved: true
-            httpConfig:
-              basicAuth:
-                username:
-                  name: alertmanager-extra-secrets
-                  key: ${alert_receiver_name}_username
-                password:
-                  name: alertmanager-extra-secrets
-                  key: ${alert_receiver_name}_password
+            send_resolved: true
+            http_config:
+              basic_auth:
+                username: ${alert_receiver_username}
+                password: ${alert_receiver_password}
 
     templates:
       - '/etc/alertmanager/config/*.tmpl'
-
-  extraSecret:
-    name: alertmanager-extra-secrets
-    data:
-      ${alert_receiver_name}_username: "${alert_receiver_username}"
-      ${alert_receiver_name}_password: "${alert_receiver_password}"
 
 kubelet:
   enabled: true
