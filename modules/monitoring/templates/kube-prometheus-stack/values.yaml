@@ -55,6 +55,9 @@ alertmanager:
     global:
       resolve_timeout: 5m
 
+    # blank out default inhibit rules
+    inhibit_rules: 
+
     route:
       group_by: ['alertname','cluster','namespace']
       group_wait: 30s
