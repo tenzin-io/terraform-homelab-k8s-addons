@@ -64,9 +64,7 @@ alertmanager:
       routes:
         - receiver: "${alert_receiver_name}"
 
-    inhibit_rules:
     receivers:
-      - name: 'null'
       - name: "${alert_receiver_name}"
         webhookConfigs:
           - url: "${alert_receiver_url}"
